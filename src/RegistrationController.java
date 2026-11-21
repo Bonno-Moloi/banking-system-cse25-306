@@ -1,11 +1,16 @@
 // Controller: handles registering new customers.
-// It checks the input, then asks the core model to create the customer and accounts.
+// It checks the input, asks the core model to create the customer and accounts,
+// and asks the DAO classes to save them in the database.
 public class RegistrationController {
 
     private Bank bank;
+    private CustomerDAO customerDAO;
+    private AccountDAO accountDAO;
 
-    public RegistrationController(Bank bank) {
+    public RegistrationController(Bank bank, CustomerDAO customerDAO, AccountDAO accountDAO) {
         this.bank = bank;
+        this.customerDAO = customerDAO;
+        this.accountDAO = accountDAO;
     }
 
     public ActionResult registerIndividual(String firstName, String surname, String address,
@@ -59,14 +64,25 @@ public class RegistrationController {
         } catch (NumberFormatException e) {
             return new ActionResult(false, "Please enter a valid opening deposit amount.");
         }
+        SavingsAccount savings = new SavingsAccount(bank.newAccountNumber("S"), bank.getBranch());
         InvestmentAccount investment;
         try {
             investment = new InvestmentAccount(bank.newAccountNumber("I"), bank.getBranch(), deposit);
         } catch (IllegalArgumentException e) {
             return new ActionResult(false, e.getMessage());
         }
-        customer.openAccount(new SavingsAccount(bank.newAccountNumber("S"), bank.getBranch()));
+        customer.openAccount(savings);
         customer.openAccount(investment);
+
+        // Save to the database first, then add to the bank in memory.
+        try {
+            customerDAO.insert(customer);
+            for (int i = 0; i < customer.getAccounts().size(); i++) {
+                accountDAO.insert(customer.getAccounts().get(i), customer.getCustomerID());
+            }
+        } catch (DatabaseException e) {
+            return new ActionResult(false, e.getMessage());
+        }
         bank.addCustomer(customer);
         return new ActionResult(true,
                 "Registration successful. Savings and Investment accounts opened. You can now log in.");

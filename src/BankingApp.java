@@ -3,7 +3,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-// Starts the JavaFX application, creates the model and controllers once,
+// Starts the JavaFX application, sets up the database, model and controllers once,
 // and switches between the screens.
 public class BankingApp extends Application {
 
@@ -15,10 +15,12 @@ public class BankingApp extends Application {
     public void start(Stage primaryStage) {
         stage = primaryStage;
 
-        Bank bank = new Bank();
+        AppSetup setup = new AppSetup();
+        Bank bank = setup.loadBank();
         loginController = new LoginController(bank);
-        registrationController = new RegistrationController(bank);
-        accountController = new AccountController(bank, loginController);
+        registrationController = new RegistrationController(bank, setup.getCustomerDAO(), setup.getAccountDAO());
+        accountController = new AccountController(bank, loginController,
+                setup.getAccountDAO(), setup.getTransactionDAO());
 
         stage.setTitle("Banking System");
         showLogin();

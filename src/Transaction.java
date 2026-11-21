@@ -15,6 +15,14 @@ public class Transaction {
         this.date = new Date();
     }
 
+    // Used when a saved transaction is loaded back from the database.
+    public Transaction(String type, double amount, double balanceAfter, Date date) {
+        this.type = type;
+        this.amount = amount;
+        this.balanceAfter = balanceAfter;
+        this.date = date;
+    }
+
     public String getType() {
         return type;
     }

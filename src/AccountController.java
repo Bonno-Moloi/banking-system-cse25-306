@@ -3,15 +3,21 @@ import java.util.ArrayList;
 
 // Controller: handles everything to do with the logged-in customer's accounts.
 // The screens only give it account numbers and text typed by the user. It finds
-// the account in the core model, asks it to do the work, and returns text to display.
+// the account in the core model, asks it to do the work, saves the change with
+// the DAO classes, and returns text to display.
 public class AccountController {
 
     private Bank bank;
     private LoginController loginController;
+    private AccountDAO accountDAO;
+    private TransactionDAO transactionDAO;
 
-    public AccountController(Bank bank, LoginController loginController) {
+    public AccountController(Bank bank, LoginController loginController,
+                             AccountDAO accountDAO, TransactionDAO transactionDAO) {
         this.bank = bank;
         this.loginController = loginController;
+        this.accountDAO = accountDAO;
+        this.transactionDAO = transactionDAO;
     }
 
     // ---------------- Dashboard ----------------
@@ -48,7 +54,13 @@ public class AccountController {
             String address = isEmpty(employerAddress) ? "" : employerAddress.trim();
             cheque.linkEmployer(employerName.trim(), address);
         }
-        loginController.getLoggedInCustomer().openAccount(cheque);
+        Customer customer = loginController.getLoggedInCustomer();
+        try {
+            accountDAO.insert(cheque, customer.getCustomerID());
+        } catch (DatabaseException e) {
+            return new ActionResult(false, e.getMessage());
+        }
+        customer.openAccount(cheque);
         return new ActionResult(true, "Cheque account " + cheque.getAccountNumber() + " opened.");
     }
 
@@ -101,6 +113,10 @@ public class AccountController {
         }
         Account account = findAccount(accountNumber);
         if (account.deposit(amount)) {
+            ActionResult problem = saveLatestChange(account);
+            if (problem != null) {
+                return problem;
+            }
             return new ActionResult(true, "Deposit successful. New balance: " + money(account.getBalance()));
         }
         return new ActionResult(false, account.getLastMessage());
@@ -113,6 +129,10 @@ public class AccountController {
         }
         Account account = findAccount(accountNumber);
         if (account.withdraw(amount)) {
+            ActionResult problem = saveLatestChange(account);
+            if (problem != null) {
+                return problem;
+            }
             return new ActionResult(true, "Withdrawal successful. New balance: " + money(account.getBalance()));
         }
         return new ActionResult(false, account.getLastMessage());
@@ -126,6 +146,10 @@ public class AccountController {
             ((InvestmentAccount) account).addInterest();
         } else {
             return new ActionResult(false, "Cheque accounts do not earn interest.");
+        }
+        ActionResult problem = saveLatestChange(account);
+        if (problem != null) {
+            return problem;
         }
         return new ActionResult(true, "Monthly interest added. New balance: " + money(account.getBalance()));
     }
@@ -144,6 +168,19 @@ public class AccountController {
     }
 
     // ---------------- Helpers ----------------
+
+    // Saves the new balance and the newest transaction in the database.
+    // Returns an error result if saving fails, or null if all went well.
+    private ActionResult saveLatestChange(Account account) {
+        try {
+            accountDAO.update(account);
+            ArrayList<Transaction> transactions = account.getTransactions();
+            transactionDAO.insert(transactions.get(transactions.size() - 1), account.getAccountNumber());
+            return null;
+        } catch (DatabaseException e) {
+            return new ActionResult(false, e.getMessage());
+        }
+    }
 
     // Finds one of the logged-in customer's accounts by its number.
     private Account findAccount(String accountNumber) {

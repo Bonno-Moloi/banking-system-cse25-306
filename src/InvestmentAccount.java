@@ -15,6 +15,12 @@ public class InvestmentAccount extends Account {
         deposit(openingDeposit);
     }
 
+    // Used only when an existing account is loaded back from the database
+    // (its opening deposit was already checked when it was first opened).
+    public InvestmentAccount(String accountNumber, String branch) {
+        super(accountNumber, branch);
+    }
+
     public String getAccountType() {
         return "Investment";
     }

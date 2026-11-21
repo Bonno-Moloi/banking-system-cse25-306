@@ -53,6 +53,16 @@ public abstract class Account {
         return transactions;
     }
 
+    // ----- Used when an account is loaded back from the database -----
+    public void restoreState(double balance, String status) {
+        this.balance = balance;
+        this.status = status;
+    }
+
+    public void addRestoredTransaction(Transaction transaction) {
+        transactions.add(transaction);
+    }
+
     // ----- Business logic -----
 
     // Deposit money. Returns true if it worked, false if not.

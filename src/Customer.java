@@ -29,6 +29,14 @@ public abstract class Customer {
         return username;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     // Each subclass returns the right name (full name or company name).
     public abstract String getDisplayName();
 

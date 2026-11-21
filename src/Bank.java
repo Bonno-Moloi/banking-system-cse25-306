@@ -14,7 +14,6 @@ public class Bank {
         customers = new ArrayList<Customer>();
         nextCustomerNumber = 1;
         nextAccountNumber = 1001;
-        addDemoCustomer();
     }
 
     public String getBranch() {
@@ -56,8 +55,37 @@ public class Bank {
         return null;
     }
 
-    // A demo customer so the system can be tested straight away (john / pass123).
-    private void addDemoCustomer() {
+    // After customers are loaded from the database, make sure new IDs and
+    // account numbers carry on after the highest ones already used.
+    public void updateCounters() {
+        for (int i = 0; i < customers.size(); i++) {
+            Customer customer = customers.get(i);
+            int customerNumber = numberPart(customer.getCustomerID());
+            if (customerNumber >= nextCustomerNumber) {
+                nextCustomerNumber = customerNumber + 1;
+            }
+            ArrayList<Account> accounts = customer.getAccounts();
+            for (int j = 0; j < accounts.size(); j++) {
+                int accountNumber = numberPart(accounts.get(j).getAccountNumber());
+                if (accountNumber >= nextAccountNumber) {
+                    nextAccountNumber = accountNumber + 1;
+                }
+            }
+        }
+    }
+
+    // "S1001" -> 1001, "C12" -> 12
+    private int numberPart(String text) {
+        String digits = text.replaceAll("[^0-9]", "");
+        if (digits.equals("")) {
+            return 0;
+        }
+        return Integer.parseInt(digits);
+    }
+
+    // Creates the demo customer (john / pass123) with three accounts.
+    // It is not added to the bank here; the caller saves it first.
+    public Customer createDemoCustomer() {
         Individual john = new Individual(newCustomerId(), "John", "Dlamini",
                 "Plot 123, Gaborone", "john", "pass123");
 
@@ -73,6 +101,6 @@ public class Bank {
         cheque.deposit(5000);
         john.openAccount(cheque);
 
-        addCustomer(john);
+        return john;
     }
 }
