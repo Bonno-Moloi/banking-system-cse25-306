@@ -12,23 +12,26 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 // Boundary class: the dashboard that lists the customer's accounts.
+// It only talks to the controllers, never to the core model.
 public class DashboardView {
 
     private BankingApp app;
-    private BankController controller;
+    private LoginController loginController;
+    private AccountController accountController;
     private BorderPane root;
-    private ListView<Account> accountList;
+    private ListView<String> accountList;
     private TextField employerNameField;
     private TextField employerAddressField;
     private Label messageLabel;
 
-    public DashboardView(BankingApp app, BankController controller) {
+    public DashboardView(BankingApp app, LoginController loginController, AccountController accountController) {
         this.app = app;
-        this.controller = controller;
+        this.loginController = loginController;
+        this.accountController = accountController;
 
         // ----- Top: welcome message and logout -----
-        Label welcome = ViewHelper.titleLabel(controller.getWelcomeText());
-        Label details = new Label(controller.getCustomerDetails());
+        Label welcome = ViewHelper.titleLabel(accountController.getWelcomeText());
+        Label details = new Label(accountController.getCustomerDetails());
         details.setStyle("-fx-text-fill: gray;");
         VBox welcomeBox = new VBox(4, welcome, details);
 
@@ -41,7 +44,7 @@ public class DashboardView {
         top.setPadding(new Insets(0, 0, 15, 0));
 
         // ----- Centre: list of accounts -----
-        accountList = new ListView<Account>();
+        accountList = new ListView<String>();
         accountList.setPrefHeight(200);
         Button openButton = ViewHelper.primaryButton("Open Selected Account");
         openButton.setOnAction(e -> handleOpenAccount());
@@ -74,28 +77,29 @@ public class DashboardView {
     }
 
     private void refreshAccounts() {
-        accountList.getItems().setAll(controller.getAccounts());
+        accountList.getItems().setAll(accountController.getAccountSummaries());
     }
 
     private void handleOpenAccount() {
-        Account selected = accountList.getSelectionModel().getSelectedItem();
-        if (selected == null) {
+        int index = accountList.getSelectionModel().getSelectedIndex();
+        if (index < 0) {
             ViewHelper.showMessage(messageLabel, "Please select an account from the list first.", false);
         } else {
-            app.showAccount(selected);
+            app.showAccount(accountController.getAccountNumberAt(index));
         }
     }
 
     private void handleOpenCheque() {
-        String message = controller.openChequeAccount(employerNameField.getText(), employerAddressField.getText());
-        ViewHelper.showMessage(messageLabel, message, controller.isLastActionOk());
+        ActionResult result = accountController.openChequeAccount(
+                employerNameField.getText(), employerAddressField.getText());
+        ViewHelper.showMessage(messageLabel, result.getMessage(), result.isOk());
         employerNameField.clear();
         employerAddressField.clear();
         refreshAccounts();
     }
 
     private void handleLogout() {
-        controller.logout();
+        loginController.logout();
         app.showLogin();
     }
 }

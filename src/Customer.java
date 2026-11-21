@@ -71,10 +71,4 @@ public abstract class Customer {
         return hasSavings && hasInvestment;
     }
 
-    public void printAccounts() {
-        System.out.println("Accounts for " + getDisplayName() + ":");
-        for (int i = 0; i < accounts.size(); i++) {
-            System.out.println("  " + accounts.get(i));
-        }
-    }
 }

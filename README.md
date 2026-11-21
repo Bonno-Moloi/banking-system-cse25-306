@@ -1,24 +1,28 @@
 # Banking System (OOAD Assignment)
 
-Java project with a JavaFX GUI.
+Java project with a JavaFX GUI, built in three separate layers.
 
-## Structure
-**Entity classes (core model):** Account (abstract), SavingsAccount, InvestmentAccount,
-ChequeAccount, Customer (abstract), Individual, Company, Transaction
+## Layers
+**Boundary classes (GUI) - only talk to the controllers:**
+LoginView, RegisterView, DashboardView, AccountView
+(plus BankingApp, which starts the program, and ViewHelper for shared styling)
 
-**Control class:** BankController (links the GUI to the core model)
+**Control classes - check input and manage the flow:**
+LoginController, RegistrationController, AccountController
+(ActionResult is the answer a controller gives back to a screen)
 
-**Boundary classes (GUI, no business logic):** LoginView, RegisterView, DashboardView, AccountView
-(plus BankingApp, which starts the program and switches screens, and ViewHelper for shared styling)
+**Entity classes (core domain model) - business rules, no GUI code:**
+Bank, Account (abstract), SavingsAccount, InvestmentAccount, ChequeAccount,
+Customer (abstract), Individual, Company, Transaction
 
-**Console test of the core model:** Main
+**Console test of the core model only:** Main
 
 ## Run the GUI (GitHub Codespaces)
 ```
 mvn javafx:run
 ```
-Then open the **Ports** tab, click the globe icon next to port **6080**, and enter the password `vscode`
-to see the application window.
+Open the **Ports** tab, click the link on the "Desktop (JavaFX window)" row, click Connect,
+and enter the password `vscode` to see the application window.
 
 ## Run the console test only
 ```

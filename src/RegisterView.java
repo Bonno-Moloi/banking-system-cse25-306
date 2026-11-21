@@ -14,7 +14,7 @@ import javafx.scene.layout.VBox;
 public class RegisterView {
 
     private BankingApp app;
-    private BankController controller;
+    private RegistrationController registrationController;
     private VBox root;
 
     private ComboBox<String> typeBox;
@@ -31,9 +31,9 @@ public class RegisterView {
     private Label surnameLabel;
     private Label companyNameLabel;
 
-    public RegisterView(BankingApp app, BankController controller) {
+    public RegisterView(BankingApp app, RegistrationController registrationController) {
         this.app = app;
-        this.controller = controller;
+        this.registrationController = registrationController;
 
         Label title = ViewHelper.titleLabel("Register");
         Label subtitle = new Label("Every customer gets a Savings and an Investment account.");
@@ -107,16 +107,16 @@ public class RegisterView {
     }
 
     private void handleRegister() {
-        String message;
+        ActionResult result;
         if (typeBox.getValue().equals("Individual")) {
-            message = controller.registerIndividual(firstNameField.getText(), surnameField.getText(),
+            result = registrationController.registerIndividual(firstNameField.getText(), surnameField.getText(),
                     addressField.getText(), usernameField.getText(), passwordField.getText(),
                     depositField.getText());
         } else {
-            message = controller.registerCompany(companyNameField.getText(),
+            result = registrationController.registerCompany(companyNameField.getText(),
                     addressField.getText(), usernameField.getText(), passwordField.getText(),
                     depositField.getText());
         }
-        ViewHelper.showMessage(messageLabel, message, controller.isLastActionOk());
+        ViewHelper.showMessage(messageLabel, result.getMessage(), result.isOk());
     }
 }

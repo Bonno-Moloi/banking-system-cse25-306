@@ -27,10 +27,9 @@ public abstract class Account {
         return lastMessage;
     }
 
-    // Saves the message and prints it.
+    // Saves the reason why an action failed.
     protected void fail(String message) {
         lastMessage = message;
-        System.out.println(message);
     }
 
     // ----- Getters -----
@@ -116,22 +115,9 @@ public abstract class Account {
             status = "Closed";
             return true;
         }
-        System.out.println("Account cannot be closed. Balance must be zero and account must be Active.");
+        fail("Account cannot be closed. Balance must be zero and account must be Active.");
         return false;
     }
 
-    public void printTransactions() {
-        System.out.println("Transactions for account " + accountNumber + ":");
-        if (transactions.size() == 0) {
-            System.out.println("  No transactions yet.");
-        }
-        for (int i = 0; i < transactions.size(); i++) {
-            System.out.println("  " + transactions.get(i));
-        }
-    }
 
-    public String toString() {
-        return getAccountType() + " | " + accountNumber + " | Branch: " + branch + " | Status: " + status
-                + " | Balance: BWP" + String.format("%.2f", balance);
-    }
 }

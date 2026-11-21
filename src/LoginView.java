@@ -11,15 +11,15 @@ import javafx.scene.layout.VBox;
 public class LoginView {
 
     private BankingApp app;
-    private BankController controller;
+    private LoginController loginController;
     private VBox root;
     private TextField usernameField;
     private PasswordField passwordField;
     private Label messageLabel;
 
-    public LoginView(BankingApp app, BankController controller) {
+    public LoginView(BankingApp app, LoginController loginController) {
         this.app = app;
-        this.controller = controller;
+        this.loginController = loginController;
 
         Label title = ViewHelper.titleLabel("Banking System");
         Label subtitle = new Label("Please log in to continue");
@@ -55,9 +55,9 @@ public class LoginView {
     }
 
     private void handleLogin() {
-        String message = controller.login(usernameField.getText(), passwordField.getText());
-        ViewHelper.showMessage(messageLabel, message, controller.isLastActionOk());
-        if (controller.isLastActionOk()) {
+        ActionResult result = loginController.login(usernameField.getText(), passwordField.getText());
+        ViewHelper.showMessage(messageLabel, result.getMessage(), result.isOk());
+        if (result.isOk()) {
             app.showDashboard();
         }
     }

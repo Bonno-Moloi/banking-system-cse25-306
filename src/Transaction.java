@@ -31,8 +31,4 @@ public class Transaction {
         return date;
     }
 
-    public String toString() {
-        return date + " | " + type + " | BWP" + String.format("%.2f", amount)
-                + " | Balance: BWP" + String.format("%.2f", balanceAfter);
-    }
 }

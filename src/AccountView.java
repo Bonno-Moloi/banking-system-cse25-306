@@ -12,12 +12,13 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 // Boundary class: shows one account and lets the customer deposit, withdraw
-// and view transactions. It only displays information and collects input.
+// and view transactions. It only talks to the AccountController, using the
+// account number to say which account it means.
 public class AccountView {
 
     private BankingApp app;
-    private BankController controller;
-    private Account account;
+    private AccountController accountController;
+    private String accountNumber;
     private BorderPane root;
 
     private Label detailsLabel;
@@ -27,13 +28,13 @@ public class AccountView {
     private Label messageLabel;
     private ListView<String> transactionList;
 
-    public AccountView(BankingApp app, BankController controller, Account account) {
+    public AccountView(BankingApp app, AccountController accountController, String accountNumber) {
         this.app = app;
-        this.controller = controller;
-        this.account = account;
+        this.accountController = accountController;
+        this.accountNumber = accountNumber;
 
         // ----- Top: title and back button -----
-        Label title = ViewHelper.titleLabel(account.getAccountType() + " Account");
+        Label title = ViewHelper.titleLabel(accountController.getAccountTitle(accountNumber));
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         Button backButton = ViewHelper.secondaryButton("Back to Accounts");
@@ -58,8 +59,8 @@ public class AccountView {
         interestButton.setOnAction(e -> handleInterest());
 
         // Buttons that do not apply to this account are greyed out.
-        withdrawButton.setDisable(!controller.allowsWithdrawals(account));
-        interestButton.setDisable(!controller.paysInterest(account));
+        withdrawButton.setDisable(!accountController.allowsWithdrawals(accountNumber));
+        interestButton.setDisable(!accountController.paysInterest(accountNumber));
 
         HBox actionButtons = new HBox(10, depositButton, withdrawButton);
         messageLabel = new Label();
@@ -94,27 +95,27 @@ public class AccountView {
 
     // Re-reads the details and transactions so the screen shows the latest values.
     private void refresh() {
-        detailsLabel.setText(controller.describeAccount(account));
-        transactionList.getItems().setAll(controller.getTransactionLines(account));
+        detailsLabel.setText(accountController.describeAccount(accountNumber));
+        transactionList.getItems().setAll(accountController.getTransactionLines(accountNumber));
     }
 
     private void handleDeposit() {
-        String message = controller.deposit(account, amountField.getText());
-        ViewHelper.showMessage(messageLabel, message, controller.isLastActionOk());
+        ActionResult result = accountController.deposit(accountNumber, amountField.getText());
+        ViewHelper.showMessage(messageLabel, result.getMessage(), result.isOk());
         amountField.clear();
         refresh();
     }
 
     private void handleWithdraw() {
-        String message = controller.withdraw(account, amountField.getText());
-        ViewHelper.showMessage(messageLabel, message, controller.isLastActionOk());
+        ActionResult result = accountController.withdraw(accountNumber, amountField.getText());
+        ViewHelper.showMessage(messageLabel, result.getMessage(), result.isOk());
         amountField.clear();
         refresh();
     }
 
     private void handleInterest() {
-        String message = controller.addInterest(account);
-        ViewHelper.showMessage(messageLabel, message, controller.isLastActionOk());
+        ActionResult result = accountController.addInterest(accountNumber);
+        ViewHelper.showMessage(messageLabel, result.getMessage(), result.isOk());
         refresh();
     }
 }
