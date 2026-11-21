@@ -11,7 +11,12 @@ public class AppSetup {
     private CustomerDAO customerDAO;
 
     public AppSetup() {
-        db = new DatabaseManager();
+        this(DatabaseManager.DEFAULT_URL);
+    }
+
+    // The integration test uses its own temporary database URL.
+    public AppSetup(String url) {
+        db = new DatabaseManager(url);
         db.createTables();
         transactionDAO = new TransactionDAO(db);
         accountDAO = new AccountDAO(db, transactionDAO);

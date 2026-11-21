@@ -33,9 +33,12 @@ Data you enter is saved and is still there the next time you run the program.
 
 ## Run the tests (console)
 ```
+mvn compile exec:java -Dexec.mainClass=IntegrationTest
 mvn compile exec:java -Dexec.mainClass=DatabaseTest
 mvn compile exec:java -Dexec.mainClass=Main
 ```
+IntegrationTest checks the controllers, core model and JDBC classes working together (28 tests,
+including restarting the application to prove the saved data comes back).
 DatabaseTest shows Create, Read, Update and Delete using a temporary in-memory database.
 Main tests the core model only.
 
