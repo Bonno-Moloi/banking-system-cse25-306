@@ -9,6 +9,7 @@ public abstract class Account {
     private String branch;
     private String status;   // Pending, Active, Frozen or Closed (from the state diagram)
     private ArrayList<Transaction> transactions;
+    private String lastMessage;   // explains why the last deposit/withdrawal failed
 
     public Account(String accountNumber, String branch) {
         this.accountNumber = accountNumber;
@@ -16,6 +17,20 @@ public abstract class Account {
         this.balance = 0;
         this.status = "Active";
         this.transactions = new ArrayList<Transaction>();
+        this.lastMessage = "";
+    }
+
+    // Each subclass says what type of account it is (used for display).
+    public abstract String getAccountType();
+
+    public String getLastMessage() {
+        return lastMessage;
+    }
+
+    // Saves the message and prints it.
+    protected void fail(String message) {
+        lastMessage = message;
+        System.out.println(message);
     }
 
     // ----- Getters -----
@@ -44,11 +59,11 @@ public abstract class Account {
     // Deposit money. Returns true if it worked, false if not.
     public boolean deposit(double amount) {
         if (amount <= 0) {
-            System.out.println("Deposit failed: amount must be greater than 0.");
+            fail("Deposit failed: amount must be greater than 0.");
             return false;
         }
         if (!status.equals("Active")) {
-            System.out.println("Deposit failed: account is " + status + ".");
+            fail("Deposit failed: account is " + status + ".");
             return false;
         }
         balance = balance + amount;
@@ -60,15 +75,15 @@ public abstract class Account {
     // SavingsAccount overrides this method to block withdrawals.
     public boolean withdraw(double amount) {
         if (amount <= 0) {
-            System.out.println("Withdrawal failed: amount must be greater than 0.");
+            fail("Withdrawal failed: amount must be greater than 0.");
             return false;
         }
         if (!status.equals("Active")) {
-            System.out.println("Withdrawal failed: account is " + status + ".");
+            fail("Withdrawal failed: account is " + status + ".");
             return false;
         }
         if (amount > balance) {
-            System.out.println("Withdrawal failed: insufficient funds.");
+            fail("Withdrawal failed: insufficient funds.");
             return false;
         }
         balance = balance - amount;
@@ -116,7 +131,7 @@ public abstract class Account {
     }
 
     public String toString() {
-        return accountNumber + " | Branch: " + branch + " | Status: " + status
+        return getAccountType() + " | " + accountNumber + " | Branch: " + branch + " | Status: " + status
                 + " | Balance: BWP" + String.format("%.2f", balance);
     }
 }

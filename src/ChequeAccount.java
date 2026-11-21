@@ -10,6 +10,10 @@ public class ChequeAccount extends Account {
         this.employerAddress = "";
     }
 
+    public String getAccountType() {
+        return "Cheque";
+    }
+
     public void linkEmployer(String employerName, String employerAddress) {
         this.employerName = employerName;
         this.employerAddress = employerAddress;

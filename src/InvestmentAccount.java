@@ -15,6 +15,10 @@ public class InvestmentAccount extends Account {
         deposit(openingDeposit);
     }
 
+    public String getAccountType() {
+        return "Investment";
+    }
+
     public double getInterestRate() {
         return interestRate;
     }

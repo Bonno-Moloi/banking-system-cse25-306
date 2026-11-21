@@ -7,13 +7,17 @@ public class SavingsAccount extends Account {
         super(accountNumber, branch);
     }
 
+    public String getAccountType() {
+        return "Savings";
+    }
+
     public double getInterestRate() {
         return interestRate;
     }
 
     // Overrides withdraw() to block all withdrawals.
     public boolean withdraw(double amount) {
-        System.out.println("Withdrawal failed: withdrawals are not allowed from a Savings account.");
+        fail("Withdrawal failed: withdrawals are not allowed from a Savings account.");
         return false;
     }
 
